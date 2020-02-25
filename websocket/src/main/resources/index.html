@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript">
+        var ws;
+
+        function login() {
+            if (!ws) {
+                var user = document.getElementById("name").value;
+                try {
+                    ws = new WebSocket("ws://127.0.0.1:8080/websocket/" + user);
+                    ws.onopen = function (ev) {
+                        console.log("connect to service");
+                        alert("login success")
+                    };
+                    ws.onmessage = function (ev) {
+                        console.log("get send data fron service..." + ev.data);
+                        document.getElementById("info").innerHTML += ev.data + "<br>";
+                    };
+                    ws.onclose = function (ev) {
+                        console.log("disconnect to service");
+                    };
+                    ws.onerror = function (ev) {
+                        console.log("ws error");
+                    };
+                } catch (e) {
+                    alert(e.message);
+                }
+                document.getElementById("login").innerHTML = "quit";
+            } else {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function SendData() {
+            var data = document.getElementById("data").value;
+            try {
+                ws.send(data);
+                document.getElementById("data").value = '';
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+    </script>
+</head>
+<body>
+<input id="name" value="" placeholder="用户名">
+<button id="login" type="button" onclick="login()" value="">登陆</button>
+<br/><br/>
+<input id="data">
+<button type="button" onclick='SendData();'>发送消息</button>
+<br/><br/>
+<div id="info">
+
+</div>
+</body>
+</html>
